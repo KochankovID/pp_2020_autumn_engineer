@@ -48,9 +48,9 @@ TEST(Parallel_Operations_MPI, parallel_sum_one_line) {
 TEST(Parallel_Operations_MPI, get_rand_matrix_works) {
     auto matrix = get_rand_matrix(5, 6);
 
-    EXPECT_EQ(matrix.size(), 5);
+    EXPECT_EQ(static_cast<int>(matrix.size()), 5);
     for (int i = 0; i < 5; i++) {
-        EXPECT_EQ(matrix[i].size(), 6);
+        EXPECT_EQ(static_cast<int>(matrix[i].size()), 6);
         for (int j = 0; j < 6; j++) {
             EXPECT_GE(matrix[i][j], 0);
         }
