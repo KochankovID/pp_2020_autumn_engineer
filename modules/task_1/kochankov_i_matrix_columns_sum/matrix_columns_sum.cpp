@@ -69,7 +69,7 @@ vector<double> not_parallel_sum(const vector<vector<double>> &matrix) {
     vector<double> result_vector(matrix[0].size());
 
     for (const auto & i : matrix) {
-        for (int j = 0; j < i.size(); j++) {
+        for (int j = 0; j < static_cast<int>(i.size()); j++) {
             result_vector[j] += i[j];
         }
     }
