@@ -11,7 +11,7 @@ double* sequential_operations(int result_size, int start_index, const vector<vec
     auto* tmp_result_vector = new double[result_size];
     std::fill(tmp_result_vector, tmp_result_vector+result_size, 0);
 
-    for (size_t j = start_index; j < start_index + result_size; j++) {
+    for (int j = start_index; j < start_index + result_size; j++) {
         for (auto &i : matrix) {
             tmp_result_vector[j-start_index] += i[j];
         }
@@ -56,9 +56,9 @@ vector<vector<double >> get_rand_matrix(int x, int y) {
 
     gen.seed(static_cast<unsigned int>(time(0)));
     vector<vector<double >> vec(x);
-    for (size_t i = 0; i < x; i++) {
+    for (int i = 0; i < x; i++) {
         vec[i].resize(y);
-        for (size_t j = 0; j < y; j++) {
+        for (int j = 0; j < y; j++) {
             vec[i][j] = (static_cast<double>(gen()) / 100000);
         }
     }
@@ -69,7 +69,7 @@ vector<double> not_parallel_sum(const vector<vector<double>> &matrix) {
     vector<double> result_vector(matrix[0].size());
 
     for (const auto & i : matrix) {
-        for (size_t j = 0; j < i.size(); j++) {
+        for (int j = 0; j < i.size(); j++) {
             result_vector[j] += i[j];
         }
     }
