@@ -89,8 +89,13 @@ pair<int, int> getSequentialOperations(const vector<int>& vec) {
 }
 
 void pairCompare(int* input, int* output, int* lenght, MPI_Datatype *dtype) {
-    if (abs(input[0] - input[1]) <= abs(output[0] - output[1]) && (input[2] < output[2])) {
+    if (abs(input[0] - input[1]) < abs(output[0] - output[1])) {
         output[0] = input[0];
         output[1] = input[1];
+    } else {
+        if (abs(input[0] - input[1]) == abs(output[0] - output[1]) && (input[2] < output[2])){
+            output[0] = input[0];
+            output[1] = input[1];
+        }
     }
 }
