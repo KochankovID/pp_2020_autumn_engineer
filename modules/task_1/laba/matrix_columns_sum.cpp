@@ -11,7 +11,7 @@
 
 std::vector<int> getRandomVector(int size) {
     std::mt19937 random_generator;
-    random_generator.seed(static_cast<unsigned int>(5));
+    random_generator.seed(static_cast<unsigned int>(time(0)));
     std::vector<int> vec(size);
     for (int  i = 0; i < size; i++) { vec[i] = random_generator() % 100; }
     return vec;
@@ -60,14 +60,14 @@ pair<int, int> getParallelOperations(const vector<int>& vec) {
     }
 
     auto result = getSequentialOperations(local_vector);
-    int tmp_arr[2] = {result.first, result.second};
-    int min_elements[2] = {0, 0};
+    int tmp_arr[3] = {result.first, result.second, rank};
+    int min_elements[3] = {0, 0, rank};
 
     std::cout << result.first << ' ' << result.second << ' ' << rank << std::endl;
 
     MPI_Op op;
     MPI_Op_create(reinterpret_cast<MPI_User_function *>(pairCompare), true, &op);
-    MPI_Reduce(tmp_arr, min_elements, 2, MPI_INT, op, 0, MPI_COMM_WORLD);
+    MPI_Reduce(tmp_arr, min_elements, 3, MPI_INT, op, 0, MPI_COMM_WORLD);
 
     return std::make_pair(min_elements[0], min_elements[1]);
 }
@@ -80,7 +80,7 @@ pair<int, int> getSequentialOperations(const vector<int>& vec) {
     pair<int, int> result = std::make_pair(vec[0], vec[1]);
 
     for (int i = 1; i < vec.size() - 1; i++) {
-        if (abs(vec[i] - vec[i + 1]) < difference) {
+        if (abs(vec[i] - vec[i + 1]) <= difference) {
             difference = abs(vec[i] - vec[i + 1]);
             result.first = vec[i];
             result.second = vec[i + 1];
@@ -91,7 +91,7 @@ pair<int, int> getSequentialOperations(const vector<int>& vec) {
 }
 
 void pairCompare(int* input, int* output, int* lenght, MPI_Datatype *dtype) {
-    if (abs(input[0] - input[1]) <= abs(output[0] - output[1])) {
+    if (abs(input[0] - input[1]) < abs(output[0] - output[1]) && (input[3] < output[3])) {
         output[0] = input[0];
         output[1] = input[1];
     }
