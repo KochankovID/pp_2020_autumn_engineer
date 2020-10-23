@@ -88,13 +88,13 @@ TEST(Parallel_Operations_MPI, test_getParallelOperations_and_getSequentialOperat
 }
 
 TEST(Parallel_Operations_MPI, test_getParallelOperations_and_getSequentialOperations_compare_four_size) {
-    std::vector<int> global_vec(10000);
+    std::vector<int> global_vec(1000000);
 
     int ProcRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &ProcRank);
 
     if (ProcRank == 0) {
-        global_vec = getRandomVector(10000);
+        global_vec = getRandomVector(1000000);
     }
 
     auto parallel_result = getParallelOperations(global_vec);
