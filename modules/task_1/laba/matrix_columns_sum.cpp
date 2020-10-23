@@ -61,7 +61,7 @@ pair<int, int> getParallelOperations(const vector<int>& vec) {
 
     auto result = getSequentialOperations(local_vector);
     int tmp_arr[3] = {result.first, result.second, rank};
-    int min_elements[3] = {0, 0, rank};
+    int min_elements[3] = {0, 0, 0};
 
     std::cout << result.first << ' ' << result.second << ' ' << rank << std::endl;
 
@@ -80,7 +80,7 @@ pair<int, int> getSequentialOperations(const vector<int>& vec) {
     pair<int, int> result = std::make_pair(vec[0], vec[1]);
 
     for (int i = 1; i < vec.size() - 1; i++) {
-        if (abs(vec[i] - vec[i + 1]) <= difference) {
+        if (abs(vec[i] - vec[i + 1]) < difference) {
             difference = abs(vec[i] - vec[i + 1]);
             result.first = vec[i];
             result.second = vec[i + 1];
@@ -91,7 +91,8 @@ pair<int, int> getSequentialOperations(const vector<int>& vec) {
 }
 
 void pairCompare(int* input, int* output, int* lenght, MPI_Datatype *dtype) {
-    if (abs(input[0] - input[1]) < abs(output[0] - output[1]) && (input[3] < output[3])) {
+    if (abs(input[0] - input[1]) <= abs(output[0] - output[1]) && (input[2] < output[2])) {
+        std::cout << "(" << input[2] << ", " << output[2] << ")" << std::endl;
         output[0] = input[0];
         output[1] = input[1];
     }
