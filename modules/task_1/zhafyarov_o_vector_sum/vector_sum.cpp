@@ -5,8 +5,8 @@
 #include <ctime>
 #include "../../../modules/task_1/zhafyarov_o_vector_sum/vector_sum.h"
 
-std::vector <int> getRandomVector(int Size) {
-    std::vector<int> vectmp(Size);
+std::vector <double> getRandomVector(int Size) {
+    std::vector<double> vectmp(Size);
 
     std::mt19937 gen;
     gen.seed(static_cast<unsigned int>(time(0)));
