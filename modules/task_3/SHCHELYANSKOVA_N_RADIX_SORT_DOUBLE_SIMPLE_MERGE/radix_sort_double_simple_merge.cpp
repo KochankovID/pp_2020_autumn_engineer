@@ -1,4 +1,5 @@
-#include "./radix_sort_double_simple_merge.h"
+// Copyright 2020 Shchelyanskova Nastya
+#include "../../../modules/task_3/SHCHELYANSKOVA_N_RADIX_SORT_DOUBLE_SIMPLE_MERGE/radix_sort_double_simple_merge.h"
 
 #include <mpi.h>
 
@@ -7,27 +8,32 @@
 #include <random>
 #include <vector>
 #include <list>
+#include <utility>
+#include <string>
+#include <algorithm>
 
-using namespace std;
+using std::vector;
+using std::cout;
+using std::endl;
+using std::list;
+using std::to_string;
 
 vector<double> getRandomVector(int size) {
     vector<double> vec(size);
+    std::mt19937 gen;
+    gen.seed(static_cast<unsigned char>(time(0)));
     for (int i = 0; i < size; i++) {
-        std::mt19937 gen;
-        gen.seed(static_cast<unsigned char>(time(nullptr)));
-        vec[i] = (gen() / 10000. * (1000. - 10.) + 10.);
+        vec[i] = gen() / 10000;
     }
     return vec;
 }
 
 vector<double> bubbleSort(const std::vector<double>& vec) {
-    std::vector<double> sorted;
-    for (auto i = vec.begin(); i < vec.end(); ++i) {
-        for (auto j = i; j < vec.end(); ++j) {
-            if (*i > *j) {
-                sorted.push_back(*j);
-            }else{
-                sorted.push_back(*i);
+    std::vector<double> sorted(vec);
+    for (int i = 0; i < sorted.size(); i++) {
+        for (int j = i; j < sorted.size(); j++) {
+            if (sorted[i] > sorted[j]) {
+                std::swap(sorted[i], sorted[j]);
             }
         }
     }
@@ -178,7 +184,7 @@ std::vector<double> parallelRadixSort(const std::vector<double>& vect) {
             (static_cast<int>(active_process.size()) % 2)) {
             vector<int> tmp_active_proc;
             vector<int> tmp_process_deltas_map;
-            for (int i = 1; i < static_cast<int>(active_process.size()); i += 2) {
+            for (int i = 0; i < static_cast<int>(active_process.size()) - 1; i += 2) {
                 tmp_active_proc.push_back(active_process[i]);
                 tmp_process_deltas_map.push_back(process_deltas_map[i]);
             }
@@ -191,59 +197,40 @@ std::vector<double> parallelRadixSort(const std::vector<double>& vect) {
                 }
             }
             active_process = tmp_active_proc;
+            process_deltas_map = tmp_process_deltas_map;
             continue;
         }
-        if (index_of_cur_process % 2 == 0) {
-            MPI_Send(&result[0], count, MPI_DOUBLE, active_process[index_of_cur_process + 1], 0, MPI_COMM_WORLD);
-            if (rank != 0) {
-                return vector<double>();
-            } else {
-                active_process = vector<int>(1);
-                process_deltas_map = vector<int>(1);
-                active_process[0] = size - 1;
-                process_deltas_map[0] = static_cast<int>(vect.size());
-            }
+        if (index_of_cur_process % 2 == 1) {
+            MPI_Send(&result[0], count, MPI_DOUBLE, active_process[index_of_cur_process - 1], 0, MPI_COMM_WORLD);
+            return vector<double>();
         } else {
             MPI_Status st;
 
-            vector<double> tmp(process_deltas_map[index_of_cur_process - 1]);
-            MPI_Recv(&tmp[0], process_deltas_map[index_of_cur_process - 1], MPI_DOUBLE,
-                active_process[index_of_cur_process - 1], 0, MPI_COMM_WORLD, &st);
+            vector<double> tmp(process_deltas_map[index_of_cur_process + 1]);
+            MPI_Recv(&tmp[0], process_deltas_map[index_of_cur_process + 1], MPI_DOUBLE,
+                active_process[index_of_cur_process + 1], 0, MPI_COMM_WORLD, &st);
 
             result = merge(result, tmp);
             count = static_cast<int>(result.size());
 
             vector<int> tmp_active_proc;
             vector<int> tmp_process_deltas_map;
-            for (int i = 1; i < static_cast<int>(active_process.size()); i += 2) {
+            for (int i = 0; i < static_cast<int>(active_process.size()) - 1; i += 2) {
                 tmp_active_proc.push_back(active_process[i]);
-                tmp_process_deltas_map.push_back(process_deltas_map[i]);
+                tmp_process_deltas_map.push_back(process_deltas_map[i] + process_deltas_map[i + 1]);
             }
-            if ((static_cast<int>(active_process.size()) != 1) &&
-                (static_cast<int>(active_process.size()) % 2)) {
+
+            if ((static_cast<int>(active_process.size()) % 2)) {
                 tmp_active_proc.push_back(active_process[static_cast<int>(active_process.size()) - 1]);
                 tmp_process_deltas_map.push_back(process_deltas_map[static_cast<int>(active_process.size()) - 1]);
             }
 
-            for (int i = 0; i < static_cast<int>(tmp_active_proc.size()); i++) {
-                if (tmp_active_proc[i] != rank) {
-                    tmp_process_deltas_map[i] *= 2;
-                } else {
-                    tmp_process_deltas_map[i] = count;
-                }
-            }
             active_process = tmp_active_proc;
             process_deltas_map = tmp_process_deltas_map;
         }
     }
-    if (rank == active_process[0]) {
-        MPI_Send(&result[0], count, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
-    } else {
-        MPI_Status status;
-        vector<double> tmp(static_cast<int>(vect.size()));
-        MPI_Recv(&tmp[0], static_cast<int>(vect.size()),
-            MPI_DOUBLE, active_process[0], 0, MPI_COMM_WORLD, &status);
-        return tmp;
+    if (rank == 0) {
+        return result;
     }
     return vector<double>();
 }

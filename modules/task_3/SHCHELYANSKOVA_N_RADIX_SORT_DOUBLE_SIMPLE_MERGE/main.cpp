@@ -5,10 +5,11 @@
 #include <vector>
 #include "./radix_sort_double_simple_merge.h"
 
-using namespace std;
+using std::vector;
+using std::cout;
+using std::endl;
 
-TEST(Parallel_Operations_MPI, Test_Negative_Size)
-{
+TEST(Parallel_Operations_MPI, Test_Negative_Size) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -18,8 +19,7 @@ TEST(Parallel_Operations_MPI, Test_Negative_Size)
   }
 }
 
-TEST(Parallel_Operations_MPI, Test_Get_Random_Array)
-{
+TEST(Parallel_Operations_MPI, Test_Bubble_sort) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   const int size = 100;
@@ -33,8 +33,7 @@ TEST(Parallel_Operations_MPI, Test_Get_Random_Array)
   }
 }
 
-TEST(Parallel_Operations_MPI, Test_Bubble_sort)
-{
+TEST(Parallel_Operations_MPI, Test_Get_Random_Array) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -44,8 +43,7 @@ TEST(Parallel_Operations_MPI, Test_Bubble_sort)
   }
 }
 
-TEST(Parallel_Operations_MPI, Test_NumberOfPositiveRadix)
-{
+TEST(Parallel_Operations_MPI, Test_NumberOfPositiveRadix) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -66,19 +64,16 @@ TEST(Parallel_Operations_MPI, Test_NumberOfNegativeRadix) {
     }
 }
 
-TEST(Parallel_Operations_MPI, TEST_Merge)
-{
+TEST(Parallel_Operations_MPI, TEST_Merge) {
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
-
     vector<double> vec1{ 1.23, 1.38, 3.23, 5.56 };
     vector<double> vec2{ 0.23, 2.2, 3.6, 6.23 };
     vector<double> res{ 0.23, 1.23, 1.38, 2.2, 3.23, 3.6, 5.56, 6.23};
     vector<double> vec3 = merge(vec1, vec2);
 
-    for (int i = 0; i < 8; ++i)
-    {
+    for (int i = 0; i < 8; ++i) {
       EXPECT_EQ(vec3[i], res[i]) << "Arrays check_array and res_array differ at index " << i;
     }
   }
@@ -120,24 +115,24 @@ TEST(Parallel_Operations_MPI, Test_LinearRadixSort) {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
-            vector<double> vect = { 111.123, 26.333, 3.444, 91234.34234, 32.1, 32.2 };
-            vector<double> result = { 3.444, 26.333, 32.1, 32.2, 111.123, 91234.34234 };
-            auto sorted = linearRadixSort(vect);
+            vector<double> v = { 56.68, 777.4, 12.14, 999.15243, 30.1, 92.2 };
+            vector<double> result = { 12.14, 30.1, 56.68, 92.2, 777.4, 999.15243 };
+            vector<double> sorted = linearRadixSort(v);
             EXPECT_EQ(sorted, result);
     }
 }
 
-TEST(Parallel_Operations_MPI, parallel_bitwise_sort_works) {
+TEST(Parallel_Operations_MPI, Test_ParallelRadixSort) {
     int rank;
-    vector<double> vect(6);
+    vector<double> v(6);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
-        vector<double> tmp = { 111.123, 26.333, 3.444, 91234.34234, 32.1, 32.2 };
-        vect = tmp;
+        vector<double> tmp = { 56.68, 777.4, 12.14, 999.15243, 30.1, 92.2 };
+        v = tmp;
     }
-    auto sorted = parallelRadixSort(vect);
+    auto sorted = parallelRadixSort(v);
     if (rank == 0) {
-        vector<double> result = { 3.444, 26.333, 32.1, 32.2, 111.123, 91234.34234 };
+        vector<double> result = { 12.14, 30.1, 56.68, 92.2, 777.4, 999.15243 };
         EXPECT_EQ(sorted, result);
     }
 }
@@ -147,26 +142,24 @@ TEST(Parallel_Operations_MPI, parallel_bitwise_sort_works_rand_vector) {
     double start, end;
     double seconds;
 
-    vector<double> vect(50000);
+    vector<double> v(60000);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
-        vect = getRandomVector(50000);
+        v = getRandomVector(60000);
     }
     start = MPI_Wtime();
-
-    auto sorted = parallelRadixSort(vect);
-
+    auto sorted = parallelRadixSort(v);
     end = MPI_Wtime();
 
     if (rank == 0) {
         seconds = end - start;
-        std::cout << "Parallel method: " << seconds << std::endl;
+        std::cout << "Parallel: " << seconds << std::endl;
 
         start = MPI_Wtime();
-        vector<double> result = linearRadixSort(vect);
+        vector<double> result = linearRadixSort(v);
         end = MPI_Wtime();
         seconds = end - start;
-        std::cout << "Linear method: " << seconds << std::endl;
+        std::cout << "Linear: " << seconds << std::endl;
         EXPECT_EQ(sorted, result);
     }
 }
@@ -183,4 +176,7 @@ int main(int argc, char** argv) {
 
   listeners.Append(new GTestMPIListener::MPIMinimalistPrinter);
   return RUN_ALL_TESTS();
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  cout << rank << endl;
 }
