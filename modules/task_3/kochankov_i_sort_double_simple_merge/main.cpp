@@ -44,7 +44,7 @@ TEST(Parallel_Operations_MPI, get_digit_works) {
 
     int digit_4 = get_digit(91234.34234, -5);
     EXPECT_EQ(digit_4, 4);
-  }
+    }
 }
 
 TEST(Parallel_Operations_MPI, bitwise_sort_works) {
@@ -128,27 +128,28 @@ TEST(Parallel_Operations_MPI, parallel_bitwise_sort_works) {
 
 TEST(Parallel_Operations_MPI, parallel_bitwise_sort_works_rand_vector) {
     int rank;
-    time_t start, end;
+    double start, end;
     double seconds;
 
     vector<double> vect(5000000);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
         vect = getRandomVector(5000000);
-        time(&start);
     }
+    start = MPI_Wtime();
 
     auto sorted = parallel_bitwise_sort(vect);
 
+    end = MPI_Wtime();
+
     if (rank == 0) {
-        time(&end);
-        seconds = difftime(end, start);
+        seconds = end - start;
         std::cout << "Parallel method: " << seconds << std::endl;
 
-        time(&start);
+        start = MPI_Wtime();
         vector<double> result = linear_bitwise_sort(vect);
-        time(&end);
-        seconds = difftime(end, start);
+        end = MPI_Wtime();
+        seconds = end - start;
         std::cout << "Linear method: " << seconds << std::endl;
         EXPECT_EQ(sorted, result);
     }

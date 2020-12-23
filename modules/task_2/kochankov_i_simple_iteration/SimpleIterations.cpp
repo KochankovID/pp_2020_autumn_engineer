@@ -57,7 +57,11 @@ Matrix get_rand_matrix(int x, int y) {
     Matrix vec(x, y);
     for (int i = 0; i < x; i++) {
         for (int j = 0; j < y; j++) {
-            vec[i][j] = (static_cast<double>(gen()) / 100000) + 1;
+            vec[i][j] = (static_cast<double>(gen()) / 100000000000)-0.05;
+            if (i == j) {
+                vec[i][j] = x + 2;
+            }
+            // cout << vec[i][j] << " " << std::flush << endl;
         }
     }
     return vec;
@@ -82,10 +86,6 @@ vector<double> linear_simple_iteration(const Matrix& matrix, double accuracy) {
     int iterations = 0;
     while (true) {
         iterations++;
-
-        if (iterations == 1000) {
-            break;
-        }
 
         vector<double> curent_vars_values(matrix_size, 0.0);
 
@@ -157,6 +157,7 @@ vector<double> parallel_simple_iteration(const Matrix& matrix, double accuracy) 
             if (process_num == size - 1) {
                 count = len - start_index;
             }
+            // cout << "Process " << rank << "send" << count << " rows "<< std::flush << endl;
             MPI_Send(matrix[start_index], matrix.get_columns() * count, MPI_DOUBLE, process_num, 0, MPI_COMM_WORLD);
         }
         count = delta;
@@ -186,7 +187,7 @@ vector<double> parallel_simple_iteration(const Matrix& matrix, double accuracy) 
     }
 
     // cout << "Process " << rank << " get subMat: Matrix(" << local_matrix.get_rows()
-    //<< "," << local_matrix.get_columns() << ")" << endl;
+    // << "," << local_matrix.get_columns() << ")" << endl;
     // cout << "[";
     // for(int i =0; i < local_matrix.get_rows(); i++){
     //     cout << "[";
@@ -204,10 +205,6 @@ vector<double> parallel_simple_iteration(const Matrix& matrix, double accuracy) 
 
     while (true) {
         iterations++;
-
-        if (iterations == 1000) {
-            break;
-        }
 
         vector<double> curent_vars_values(local_matrix.get_rows(), 0.0);
 

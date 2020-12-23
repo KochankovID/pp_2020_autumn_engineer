@@ -223,35 +223,35 @@ TEST(Parallel_simple_method_works, Wrong_matrix) {
 }
 
 TEST(Parallel_simple_method_works, random_matrix) {
-    Matrix matrix(1000, 1001);
-    double eps = 0.001;
+    int lenth = 10000;
+    Matrix matrix(lenth, lenth+1);
+    double eps = 0.00001;
 
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
-        matrix = get_rand_matrix(1000, 1001);
+        matrix = get_rand_matrix(lenth, lenth+1);
     }
 
-    time_t start, end;
+    double start, end;
     double seconds;
 
-    if (rank == 0) {
-        time(&start);
-    }
+    start = MPI_Wtime();
 
     auto result = parallel_simple_iteration(matrix, eps);
 
+    end = MPI_Wtime();
+
     if (rank == 0) {
-        time(&end);
-        seconds = difftime(end, start);
+        seconds = end - start;
         std::cout << "Parallel method: " << seconds << std::endl;
     }
 
     if (rank == 0) {
-        time(&start);
+        start = MPI_Wtime();
         auto lin_result = linear_simple_iteration(matrix, eps);
-        time(&end);
-        double seconds = difftime(end, start);
+        end = MPI_Wtime();
+        double seconds = end - start;
 
         std::cout << "Linear method: " << seconds << std::endl;
 
