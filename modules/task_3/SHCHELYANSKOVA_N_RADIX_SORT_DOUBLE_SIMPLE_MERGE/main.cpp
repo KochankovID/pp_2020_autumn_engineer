@@ -27,7 +27,7 @@ TEST(Parallel_Operations_MPI, Test_Bubble_sort) {
   if (rank == 0) {
     auto vec = getRandomVector(size);
     vec = bubbleSort(vec);
-    for (int i = 0; i < vec.size()-1; i++) {
+    for (int i = 0; i < static_cast<int>(vec.size())-1; i++) {
       ASSERT_TRUE(vec[i] <= vec[i+1]);
     }
   }
