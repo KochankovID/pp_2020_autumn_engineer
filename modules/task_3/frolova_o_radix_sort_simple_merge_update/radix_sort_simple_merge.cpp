@@ -228,7 +228,7 @@ void difOfTime(int size1) {
      if (resSort < resRadixSort) {
         std::cout << "SimpleSort faster than ParallelRadixSort on " << resRadixSort - resSort << "\n";
      } else {
-        std::cout << "ParallelRadixSort faster than SimpleSort on " << resSort - resRadixSort << "\n";
+        std::cout << "ParallelRadixSort faster than SimpleSort on " << resSort / resRadixSort << "\n";
     }
   }
 }

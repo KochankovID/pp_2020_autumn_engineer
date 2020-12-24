@@ -127,41 +127,11 @@ TEST(Parallel_Operations_MPI, TEST_ParallelRadixSort3) {
   }
 }
 
-TEST(Parallel_Operations_MPI, TEST_ParallelRadixSort_Random) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  std::vector<int> vec;
-  if ( rank == 0)
-     vec = getRandomVector(14);
-  std::vector<int> res = ParallelRadixSort(vec, 14);
-  MPI_Barrier(MPI_COMM_WORLD);
-  if (rank == 0) {
-     std::vector<int> check = checkVector(vec);
-     for (int i = 0; i < 14; ++i)
-         EXPECT_EQ(res[i], check[i]) << "Arrays check_array and res_array differ at index " << i;
-  }
-}
-
-TEST(Parallel_Operations_MPI, TEST_ParallelRadixSortRandom) {
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  std::vector<int> vec;
-  if ( rank == 0)
-     vec = getRandomVector(23);
-  std::vector<int> res = ParallelRadixSort(vec, 23);
-  MPI_Barrier(MPI_COMM_WORLD);
-  if (rank == 0) {
-     std::vector<int> check = checkVector(vec);
-     for (int i = 0; i < 23; ++i)
-         EXPECT_EQ(res[i], check[i]) << "Arrays check_array and res_array differ at index " << i;
-  }
-}
-
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     MPI_Init(&argc, &argv);
-    // difOfTime(10000000);
-    // timeOfRadixSort(10000000);
+    // difOfTime(20000001);
+    // timeOfRadixSort(10000001);
     ::testing::AddGlobalTestEnvironment(new GTestMPIListener::MPIEnvironment);
     ::testing::TestEventListeners& listeners =
         ::testing::UnitTest::GetInstance()->listeners();

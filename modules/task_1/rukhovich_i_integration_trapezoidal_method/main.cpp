@@ -6,8 +6,8 @@
 #include "./integration_trapezoidal_method.h"
 
 double epsillon = 1e-8;
-double precision = 2e-3;
-double strong_precision = 1e-4;
+double precision = 1e-3;
+double strong_precision = 2e-5;
 
 // y = 0 forall x in [0, 10]. int_0^10 y = 0.
 TEST(ParallelIntegrationTrapMeth, test_zero) {
